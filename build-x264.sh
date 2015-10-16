@@ -82,7 +82,7 @@ then
 
 		XCRUN_SDK=`echo $PLATFORM | tr '[:upper:]' '[:lower:]'`
 		CC="xcrun -sdk $XCRUN_SDK clang -Wno-error=unused-command-line-argument-hard-error-in-future -arch $ARCH"
-		CFLAGS="-arch $ARCH $SIMULATOR"
+		CFLAGS="-arch $ARCH $SIMULATOR -fembed-bitcode"
 		CXXFLAGS="$CFLAGS"
 		LDFLAGS="$CFLAGS"
 

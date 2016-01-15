@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CONFIGURE_FLAGS="--enable-static --enable-pic --disable-cli"
+CONFIGURE_FLAGS="--enable-static --enable-pic --disable-cli --disable-asm"
 
 ARCHS="arm64 armv7s x86_64 i386 armv7"
 
@@ -18,6 +18,7 @@ GAS_PREPROCESSOR=/usr/local/bin/gas-preprocessor.pl
 COMPILE="y"
 LIPO="y"
 FRAMEWORK="y"
+DEPLOYMENT_TARGET="7.0"
 
 if [ "$*" ]
 then
@@ -40,7 +41,8 @@ then
 	if [ ! -r $SOURCE ]
 	then
 		echo 'x264 source not found. Trying to download...'
-		curl https://download.videolan.org/pub/x264/snapshots/x264-snapshot-20140930-2245.tar.bz2 | tar xj && ln -s x264-snapshot-20140930-2245 x264 || exit 1
+		#curl https://download.videolan.org/pub/x264/snapshots/x264-snapshot-20140930-2245.tar.bz2 | tar xj && ln -s x264-snapshot-20140930-2245 x264 || exit 1
+        git clone https://github.com/Diveinedu-CN/x264.git && pushd x264 && git checkout diveinedu && popd;
 	fi
 
 	CWD=`pwd`
@@ -53,17 +55,17 @@ then
 		if [ "$ARCH" = "i386" -o "$ARCH" = "x86_64" ]
 		then
 		    PLATFORM="iPhoneSimulator"
+		    CFLAGS="$CFLAGS -mios-simulator-version-min=$DEPLOYMENT_TARGET"
 		    CPU=
 		    if [ "$ARCH" = "x86_64" ]
 		    then
-		    	SIMULATOR="-mios-simulator-version-min=7.0"
 		    	HOST=
 		    else
-		    	SIMULATOR="-mios-simulator-version-min=5.0"
-			HOST="--host=i386-apple-darwin"
+		    	HOST="--host=i386-apple-darwin"
 		    fi
 		else
 		    PLATFORM="iPhoneOS"
+		    CFLAGS="$CFLAGS -mios-version-min=$DEPLOYMENT_TARGET"
 		    if [ $ARCH = "armv7s" ]
 		    then
 		    	CPU="--cpu=swift"
@@ -74,7 +76,7 @@ then
 		    if [ $ARCH = "arm64" ]
 		    then
 		        HOST="--host=aarch64-apple-darwin"
-			#CPU="--disable-asm"
+		        #CPU="--disable-asm"
 		    else
 		        HOST="--host=arm-apple-darwin"
 		    fi
